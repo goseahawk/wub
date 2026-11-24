@@ -25,7 +25,7 @@
 
   const shareIcon = '<svg viewBox="0 0 24 24"><path d="M12 2 7.5 6.5l1.4 1.4L11 5.8V15h2V5.8l2.1 2.1 1.4-1.4zM5 10v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10h-3v2h1v8H7v-8h1v-2z"/></svg>';
   const plusIcon = '<svg viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 2v14h14V5zm6 3h2v3h3v2h-3v3h-2v-3H8v-2h3z"/></svg>';
-  const moreIcon = '<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 1.8a8.2 8.2 0 1 1 0 16.4 8.2 8.2 0 0 1 0-16.4z"/><circle cx="7.5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="16.5" cy="12" r="1.5"/></svg>';
+  const pageMenuIcon = '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="6" height="4" rx="1"/><rect x="4" y="12" width="15" height="2" rx="1"/><rect x="4" y="17" width="11" height="2" rx="1"/></svg>';
   const dotsIcon = '<svg viewBox="0 0 24 24"><path d="M12 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>';
 
   function instructions() {
@@ -33,7 +33,7 @@
       const safari = !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
       return [
         safari
-          ? `Tap the <b>Share</b> button ${shareIcon} (if you don't see it, tap ${moreIcon} first).`
+          ? `Tap the ${pageMenuIcon} button at the left of the address bar, then tap <b>Share</b> ${shareIcon}. (On older iPhones, just tap ${shareIcon} at the bottom.)`
           : `Tap the <b>Share</b> button ${shareIcon} next to the address bar.`,
         `Scroll down and tap <b>Add to Home Screen</b> ${plusIcon}.`,
         `Tap <b>Add</b>. wubb will appear on your Home Screen.`,
