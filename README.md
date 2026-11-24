@@ -34,3 +34,9 @@ Then open http://localhost:8000. It can be hosted on any static host (GitHub Pag
 
 Settings → Pages → Build and deployment → Source: **Deploy from a branch**, pick the branch and `/ (root)`, Save.
 The site appears at `https://<user>.github.io/<repo>/` within a minute or two, and redeploys on every push.
+
+## Add to Home Screen
+
+On phones there's an **Add to Home Screen** button next to the shuffle button. On Android it opens the
+browser's install prompt; on iPhone it shows step-by-step instructions. Once installed, wubb opens
+full screen like an app, and the button no longer shows. (`manifest.webmanifest`, `sw.js`, `install.js`)
