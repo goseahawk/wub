@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>wub site</title>
+  <meta name="description" content="wub — the album by wub." />
+  <link rel="icon" href="assets/cover.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M2 12c2-6 4-6 5 0s3 6 5 0 3-6 5 0 3 6 5 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </span>
+        <span>wub site</span>
+      </div>
+      <nav class="nav">
+        <a class="nav-item active" href="#" data-view="album">
+          <svg viewBox="0 0 24 24"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg>Home
+        </a>
+        <a class="nav-item" href="#" data-view="liked">
+          <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.3 3.2 5 6.6 5c2 0 3.4 1.1 5.4 3 2-1.9 3.4-3 5.4-3C20.8 5 23 8.3 21.5 11.7 19.5 16.4 12 21 12 21z"/></svg>Liked Songs
+        </a>
+      </nav>
+      <div class="library">
+        <div class="library-title">Your Library</div>
+        <a class="lib-item" href="#" data-view="album">
+          <img src="assets/cover.svg" alt="" />
+          <div><div class="lib-name">wub</div><div class="lib-sub">Album · wub</div></div>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main" id="main">
+      <header class="hero">
+        <img class="hero-cover" id="heroCover" src="assets/cover.svg" alt="wub album cover" />
+        <div class="hero-meta">
+          <div class="hero-type" id="heroType">Album</div>
+          <h1 class="hero-title" id="heroTitle">wub</h1>
+          <div class="hero-sub" id="heroSub"></div>
+        </div>
+      </header>
+
+      <section class="actions">
+        <button class="big-play" id="bigPlay" aria-label="Play">
+          <svg class="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>
+          <svg class="i-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+        </button>
+        <button class="icon-btn" id="shuffleBtnTop" aria-label="Shuffle" title="Shuffle">
+          <svg viewBox="0 0 24 24"><path d="M14.5 4H20v5.5l-2-2-3.6 3.6-1.4-1.4L16.6 6zM4 5.4 5.4 4l13.4 13.4 1.2-1.2V20h-5.5l2-2L4 5.4zM4 18.6l5.3-5.3 1.4 1.4L5.4 20z"/></svg>
+        </button>
+      </section>
+
+      <section class="tracklist" id="tracklist">
+        <div class="tl-head">
+          <span class="c-num">#</span>
+          <span class="c-title">Title</span>
+          <span class="c-like"></span>
+          <span class="c-dur" title="Duration">
+            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm1-13h-2v6l5 3 1-1.7-4-2.3z"/></svg>
+          </span>
+        </div>
+        <ol class="tl-body" id="tlBody"></ol>
+        <p class="empty" id="emptyMsg" hidden>No liked songs yet. Tap the heart on a track to save it here.</p>
+      </section>
+
+      <footer class="album-foot" id="albumFoot"></footer>
+    </main>
+
+    <!-- Player bar -->
+    <footer class="player">
+      <div class="now">
+        <img id="nowCover" src="assets/cover.svg" alt="" />
+        <div class="now-text">
+          <div class="now-title" id="nowTitle">—</div>
+          <div class="now-artist" id="nowArtist">wub</div>
+        </div>
+        <button class="icon-btn like-now" id="likeNow" aria-label="Like">
+          <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.3 3.2 5 6.6 5c2 0 3.4 1.1 5.4 3 2-1.9 3.4-3 5.4-3C20.8 5 23 8.3 21.5 11.7 19.5 16.4 12 21 12 21z"/></svg>
+        </button>
+      </div>
+
+      <div class="controls">
+        <div class="buttons">
+          <button class="icon-btn" id="shuffleBtn" aria-label="Shuffle" title="Shuffle (S)">
+            <svg viewBox="0 0 24 24"><path d="M14.5 4H20v5.5l-2-2-3.6 3.6-1.4-1.4L16.6 6zM4 5.4 5.4 4l13.4 13.4 1.2-1.2V20h-5.5l2-2L4 5.4zM4 18.6l5.3-5.3 1.4 1.4L5.4 20z"/></svg>
+          </button>
+          <button class="icon-btn" id="prevBtn" aria-label="Previous">
+            <svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
+          </button>
+          <button class="play-btn" id="playBtn" aria-label="Play">
+            <svg class="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>
+            <svg class="i-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+          </button>
+          <button class="icon-btn" id="nextBtn" aria-label="Next">
+            <svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+          </button>
+          <button class="icon-btn" id="repeatBtn" aria-label="Repeat" title="Repeat (R)">
+            <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg>
+            <span class="repeat-one" id="repeatOne">1</span>
+          </button>
+        </div>
+        <div class="progress">
+          <span class="time" id="curTime">0:00</span>
+          <input type="range" class="slider" id="seek" min="0" max="1000" value="0" aria-label="Seek" />
+          <span class="time" id="durTime">0:00</span>
+        </div>
+      </div>
+
+      <div class="extras">
+        <button class="icon-btn" id="muteBtn" aria-label="Mute">
+          <svg viewBox="0 0 24 24"><path id="volIcon" d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>
+        </button>
+        <input type="range" class="slider vol" id="volume" min="0" max="100" value="80" aria-label="Volume" />
+      </div>
+    </footer>
+  </div>
+
+  <audio id="audio" preload="metadata"></audio>
+  <script src="album.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
