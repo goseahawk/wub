@@ -29,3 +29,8 @@ Then open http://localhost:8000. It can be hosted on any static host (GitHub Pag
 - Lock-screen / headphone media controls
 - Keyboard: Space play/pause · ←/→ seek 5s · Shift+←/→ prev/next · ↑/↓ volume · S shuffle · R repeat · M mute
 - Works on phones
+
+## Hosting on GitHub Pages
+
+Settings → Pages → Build and deployment → Source: **Deploy from a branch**, pick the branch and `/ (root)`, Save.
+The site appears at `https://<user>.github.io/<repo>/` within a minute or two, and redeploys on every push.

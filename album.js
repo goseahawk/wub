@@ -10,10 +10,9 @@ window.WUB_ALBUM = {
   year: 2026,
   cover: "assets/cover.svg",
   tracks: [
-    { title: "Track 1", file: "songs/01.mp3" },
-    { title: "Track 2", file: "songs/02.mp3" },
-    { title: "Track 3", file: "songs/03.mp3" },
-    { title: "Track 4", file: "songs/04.mp3" },
-    { title: "Track 5", file: "songs/05.mp3" },
+    { title: "Block of Writers", file: "songs/1. Block of Writers.mp3" },
+    { title: "Cross", file: "songs/2. Cross.mp3" },
+    { title: "Drive Your Car", file: "songs/3. Drive Your Car.mp3" },
+    { title: "Longest Road Imaginable", file: "songs/4. Longest Road Imaginable.mp3" },
   ],
 };

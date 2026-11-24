@@ -23,7 +23,7 @@
     selected: -1,
   };
 
-  const tracks = album.tracks.map((t, i) => ({ ...t, index: i, artist: t.artist || album.artist }));
+  const tracks = album.tracks.map((t, i) => ({ ...t, src: encodeURI(t.file), index: i, artist: t.artist || album.artist }));
 
   // ── helpers ──────────────────────────────────
   const fmt = (s) => {
@@ -59,7 +59,7 @@
     a.preload = "metadata";
     a.addEventListener("loadedmetadata", () => { state.durations[t.index] = a.duration; renderDurations(); });
     a.addEventListener("error", () => { state.missing.add(t.index); renderList(); });
-    a.src = t.file;
+    a.src = t.src;
   });
 
   // ── rendering ───────────────────────────────
@@ -174,7 +174,7 @@
     const t = tracks[index];
     if (!t) return;
     state.current = index;
-    audio.src = t.file;
+    audio.src = t.src;
     renderNow();
     updateMediaSession();
     if (autoplay) audio.play().catch(() => {});
