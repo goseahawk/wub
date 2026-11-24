@@ -1,12 +1,12 @@
 // ─────────────────────────────────────────────────────────────
-//  wub — album manifest
+//  wubb — album manifest
 //  Drop audio files into /songs and list them below in order.
 //  `file` is relative to the site root. Duration is read from
 //  the file automatically, so you don't need to fill it in.
 // ─────────────────────────────────────────────────────────────
 window.WUB_ALBUM = {
-  title: "wub",
-  artist: "wub",
+  title: "wubb",
+  artist: "wubb",
   year: 2026,
   cover: "assets/cover.svg",
   tracks: [

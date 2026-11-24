@@ -132,7 +132,7 @@
     $("bigPlay").classList.toggle("playing", playing && inView);
     renderList();
     const t = tracks[state.current];
-    document.title = t && playing ? `${t.title} • ${t.artist}` : "wub";
+    document.title = t && playing ? `${t.title} • ${t.artist}` : "wubb";
   }
 
   function renderNow() {

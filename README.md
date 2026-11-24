@@ -1,6 +1,6 @@
-# wub
+# wubb
 
-A music streaming–style web app for one album: **wub** by **wub**.
+A music streaming–style web app for one album: **wubb** by **wubb**.
 
 Plain HTML/CSS/JS — no build step.
 
