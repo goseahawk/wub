@@ -1,4 +1,4 @@
-# wub site
+# wub
 
 A music streaming–style web app for one album: **wub** by **wub**.
 

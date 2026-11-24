@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-//  wub site — album manifest
+//  wub — album manifest
 //  Drop audio files into /songs and list them below in order.
 //  `file` is relative to the site root. Duration is read from
 //  the file automatically, so you don't need to fill it in.
