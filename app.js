@@ -388,9 +388,10 @@
   $("muteBtn").onclick = () => applyVol(Number(vol.value) === 0 ? (lastVol || 80) : 0);
   applyVol(lastVol);
 
-  // Track rows. Computer: click selects, double-click plays.
-  // Phone: tap once to select (the row shows a play button), tap the same
-  // row again to play it. This guards against changing songs by accident.
+  // Track rows. When nothing is playing, one tap or click plays the song.
+  // While music is playing, a single tap/click only selects (guarding against
+  // changing songs by accident): computer double-clicks to play; phone taps
+  // the same row again (the selected row shows a play button).
   const isTouch = matchMedia("(hover: none)").matches;
   const select = (li, index) => {
     state.selected = index;
@@ -410,6 +411,8 @@
       if (index === state.current) return togglePlay();
       return playRow(index);
     }
+    // Nothing playing? Then there's nothing to interrupt: one tap/click plays.
+    if (audio.paused) return playRow(index);
     if (isTouch && state.selected === index) return playRow(index);
     select(li, index);
   });
