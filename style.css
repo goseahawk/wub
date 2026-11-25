@@ -127,7 +127,7 @@ svg { width: 20px; height: 20px; fill: currentColor; display: block; }
 .tracklist { padding: 0 28px 16px; }
 .tl-head, .track {
   display: grid;
-  grid-template-columns: 32px 1fr 40px 64px;
+  grid-template-columns: 32px 1fr 64px;
   align-items: center; gap: 16px;
   padding: 0 16px;
 }
@@ -155,11 +155,6 @@ svg { width: 20px; height: 20px; fill: currentColor; display: block; }
 .t-artist { font-size: 14px; }
 .track.current .t-title, .track.current .num-text { color: var(--accent); }
 .track.missing .t-title { color: var(--muted); }
-.track .like { opacity: 0; justify-self: center; }
-.track:hover .like, .track .like.on { opacity: 1; }
-.like svg { width: 18px; height: 18px; }
-.like:not(.on) svg { fill: none; stroke: currentColor; stroke-width: 2; }
-.like.on::after { display: none; }
 
 .eq { display: none; gap: 2px; height: 14px; align-items: flex-end; justify-content: flex-end; }
 .track.current.is-playing .num-text { display: none; }
@@ -170,7 +165,6 @@ svg { width: 20px; height: 20px; fill: currentColor; display: block; }
 .eq i:nth-child(3) { animation-delay: -.6s; }
 @keyframes eq { 0%,100% { height: 3px; } 50% { height: 14px; } }
 
-.empty { color: var(--muted); padding: 24px 16px; }
 .album-foot { padding: 16px 44px 48px; color: var(--muted); font-size: 12px; line-height: 1.7; }
 
 /* ── Player bar ─────────────────────────────── */
@@ -184,8 +178,6 @@ svg { width: 20px; height: 20px; fill: currentColor; display: block; }
 .now-text { min-width: 0; }
 .now-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .now-artist { font-size: 12px; color: var(--muted); }
-.like-now:not(.on) svg { fill: none; stroke: currentColor; stroke-width: 2; }
-.like-now.on::after { display: none; }
 
 .controls { display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: 720px; width: 100%; justify-self: center; }
 .buttons { display: flex; align-items: center; gap: 18px; }
@@ -238,8 +230,7 @@ svg { width: 20px; height: 20px; fill: currentColor; display: block; }
   .hero-cover { width: 200px; height: 200px; }
   .hero-sub { justify-content: center; }
   .actions, .tracklist { padding-left: 16px; padding-right: 16px; }
-  .tl-head, .track { padding: 0 8px; gap: 12px; grid-template-columns: 24px 1fr 32px 48px; }
-  .track .like { opacity: 1; }
+  .tl-head, .track { padding: 0 8px; gap: 12px; grid-template-columns: 24px 1fr 48px; }
   .album-foot { padding: 16px 24px 32px; }
   .player {
     grid-template-columns: 1fr auto; grid-template-rows: auto auto;

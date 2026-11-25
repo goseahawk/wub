@@ -26,16 +26,13 @@
         <span>wubb</span>
       </div>
       <nav class="nav">
-        <a class="nav-item active" href="#" data-view="album">
+        <a class="nav-item active" href="#">
           <svg viewBox="0 0 24 24"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg>Home
-        </a>
-        <a class="nav-item" href="#" data-view="liked">
-          <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.3 3.2 5 6.6 5c2 0 3.4 1.1 5.4 3 2-1.9 3.4-3 5.4-3C20.8 5 23 8.3 21.5 11.7 19.5 16.4 12 21 12 21z"/></svg>Liked Songs
         </a>
       </nav>
       <div class="library">
         <div class="library-title">Your Library</div>
-        <a class="lib-item" href="#" data-view="album">
+        <a class="lib-item" href="#">
           <img src="assets/cover.svg" alt="" />
           <div><div class="lib-name">wubb</div><div class="lib-sub">Album · wubb</div></div>
         </a>
@@ -71,13 +68,11 @@
         <div class="tl-head">
           <span class="c-num">#</span>
           <span class="c-title">Title</span>
-          <span class="c-like"></span>
           <span class="c-dur" title="Duration">
             <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm1-13h-2v6l5 3 1-1.7-4-2.3z"/></svg>
           </span>
         </div>
         <ol class="tl-body" id="tlBody"></ol>
-        <p class="empty" id="emptyMsg" hidden>No liked songs yet. Tap the heart on a track to save it here.</p>
       </section>
 
       <footer class="album-foot" id="albumFoot"></footer>
@@ -91,9 +86,6 @@
           <div class="now-title" id="nowTitle">—</div>
           <div class="now-artist" id="nowArtist">wubb</div>
         </div>
-        <button class="icon-btn like-now" id="likeNow" aria-label="Like">
-          <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.3 3.2 5 6.6 5c2 0 3.4 1.1 5.4 3 2-1.9 3.4-3 5.4-3C20.8 5 23 8.3 21.5 11.7 19.5 16.4 12 21 12 21z"/></svg>
-        </button>
       </div>
 
       <div class="controls">

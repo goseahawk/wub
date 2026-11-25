@@ -11,13 +11,11 @@
   };
 
   const state = {
-    view: "album",          // "album" | "liked"
     queue: [],              // track indices in play order
     pos: -1,                // position in queue
     current: -1,            // album track index playing
     shuffle: store.get("shuffle", false),
     repeat: store.get("repeat", "off"), // off | all | one
-    liked: new Set(store.get("liked", [])),
     durations: {},
     missing: new Set(),
     selected: -1,
@@ -51,7 +49,6 @@
     const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
     el.style.setProperty("--pct", pct + "%");
   };
-  const visibleTracks = () => state.view === "liked" ? tracks.filter((t) => state.liked.has(t.index)) : tracks;
 
   // Probe each file for duration (and existence) without downloading it all.
   tracks.forEach((t) => {
@@ -63,33 +60,24 @@
   });
 
   // ── rendering ───────────────────────────────
-  const heart = '<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.3 3.2 5 6.6 5c2 0 3.4 1.1 5.4 3 2-1.9 3.4-3 5.4-3C20.8 5 23 8.3 21.5 11.7 19.5 16.4 12 21 12 21z"/></svg>';
-
   function renderHeader() {
-    const liked = state.view === "liked";
-    $("heroType").textContent = liked ? "Playlist" : "Album";
-    $("heroTitle").textContent = liked ? "Liked Songs" : album.title;
+    $("heroTitle").textContent = album.title;
     $("heroCover").src = album.cover;
-    document.documentElement.style.setProperty("--hero-from", liked ? "#4c1d95" : "#7c3aed");
-    const n = visibleTracks().length;
-    const len = liked ? "" : totalLength();
+    const n = tracks.length;
+    const len = totalLength();
     $("heroSub").innerHTML =
       `<img src="${album.cover}" alt="" style="width:24px;height:24px;border-radius:50%">` +
       `<b>${escapeHtml(album.artist)}</b>` +
-      (liked ? "" : `<span class="dot"></span><span>${album.year}</span>`) +
+      `<span class="dot"></span><span>${album.year}</span>` +
       `<span class="dot"></span><span>${n} song${n === 1 ? "" : "s"}${len ? ", " + len : ""}</span>`;
-    $("albumFoot").innerHTML = liked ? "" :
+    $("albumFoot").innerHTML =
       `${album.year}<br>© ${album.year} ${escapeHtml(album.artist)}<br>℗ ${album.year} ${escapeHtml(album.artist)}`;
-    document.querySelectorAll("[data-view]").forEach((a) =>
-      a.classList.toggle("active", a.classList.contains("nav-item") && a.dataset.view === state.view));
   }
 
   function renderList() {
-    const list = visibleTracks();
     const body = $("tlBody");
     body.innerHTML = "";
-    $("emptyMsg").hidden = list.length > 0;
-    list.forEach((t, i) => {
+    tracks.forEach((t, i) => {
       const li = document.createElement("li");
       li.className = "track";
       li.dataset.index = t.index;
@@ -109,7 +97,6 @@
           <div class="t-title">${escapeHtml(t.title)}</div>
           <div class="t-artist">${escapeHtml(t.artist)}${state.missing.has(t.index) ? " · file not found" : ""}</div>
         </span>
-        <button class="icon-btn like ${state.liked.has(t.index) ? "on" : ""}" aria-label="Like">${heart}</button>
         <span class="c-dur">${fmt(state.durations[t.index])}</span>`;
       body.appendChild(li);
     });
@@ -127,9 +114,7 @@
     const playing = !audio.paused;
     $("playBtn").classList.toggle("playing", playing);
     $("playBtn").setAttribute("aria-label", playing ? "Pause" : "Play");
-    // Big button shows "pause" only if the current track belongs to this view.
-    const inView = visibleTracks().some((t) => t.index === state.current);
-    $("bigPlay").classList.toggle("playing", playing && inView);
+    $("bigPlay").classList.toggle("playing", playing);
     renderList();
     const t = tracks[state.current];
     document.title = t && playing ? `${t.title} • ${t.artist}` : "wubb";
@@ -139,7 +124,6 @@
     const t = tracks[state.current];
     $("nowTitle").textContent = t ? t.title : "—";
     $("nowArtist").textContent = t ? t.artist : album.artist;
-    $("likeNow").classList.toggle("on", !!t && state.liked.has(t.index));
   }
 
   function renderModes() {
@@ -155,7 +139,7 @@
 
   // ── queue & playback ────────────────────────
   function buildQueue(startIndex) {
-    const order = visibleTracks().map((t) => t.index);
+    const order = tracks.map((t) => t.index);
     if (state.shuffle) {
       for (let i = order.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -188,9 +172,8 @@
 
   function togglePlay() {
     if (state.current === -1) {
-      const list = visibleTracks();
-      if (!list.length) return;
-      buildQueue(state.shuffle ? null : list[0].index);
+      if (!tracks.length) return;
+      buildQueue(state.shuffle ? null : 0);
       return load(state.queue[state.pos]);
     }
     audio.paused ? audio.play().catch(() => {}) : audio.pause();
@@ -212,22 +195,6 @@
     if (audio.currentTime > 3 || state.pos <= 0) { audio.currentTime = 0; return; }
     state.pos -= 1;
     load(state.queue[state.pos]);
-  }
-
-  function toggleLike(index) {
-    if (index < 0) return;
-    if (state.liked.has(index)) { state.liked.delete(index); toast("Removed from Liked Songs"); }
-    else { state.liked.add(index); toast("Added to Liked Songs"); }
-    store.set("liked", [...state.liked]);
-    renderList(); renderNow();
-  }
-
-  function setView(v) {
-    state.view = v;
-    state.selected = -1;
-    $("main").scrollTop = 0;
-    renderList();
-    renderPlayState();
   }
 
   // ── media session (lock screen / headphone keys) ──
@@ -276,14 +243,7 @@
 
   // ── UI events ─────────────────────────────────
   $("playBtn").onclick = togglePlay;
-  $("bigPlay").onclick = () => {
-    const inView = visibleTracks().some((t) => t.index === state.current);
-    if (inView) return togglePlay();
-    const list = visibleTracks();
-    if (!list.length) return;
-    buildQueue(state.shuffle ? null : list[0].index);
-    load(state.queue[state.pos]);
-  };
+  $("bigPlay").onclick = togglePlay;
   $("nextBtn").onclick = () => next();
   $("prevBtn").onclick = prev;
   const toggleShuffle = () => {
@@ -300,7 +260,6 @@
     renderModes();
   };
   $("repeatBtn").onclick = cycleRepeat;
-  $("likeNow").onclick = () => toggleLike(state.current);
 
   const seek = $("seek");
   seek.addEventListener("input", () => {
@@ -330,29 +289,26 @@
     const li = e.target.closest(".track");
     if (!li) return;
     const index = Number(li.dataset.index);
-    if (e.target.closest(".like")) return toggleLike(index);
     if (e.target.closest(".row-play")) {
       return index === state.current ? togglePlay() : playFrom(index);
     }
     state.selected = index;
-    renderList();
+    document.querySelectorAll(".track.selected").forEach((el) => el.classList.remove("selected"));
+    li.classList.add("selected");
   });
   $("tlBody").addEventListener("dblclick", (e) => {
     const li = e.target.closest(".track");
-    if (!li || e.target.closest(".like")) return;
+    if (!li) return;
     playFrom(Number(li.dataset.index));
   });
   // On touch screens a single tap plays the row.
   if (matchMedia("(hover: none)").matches) {
     $("tlBody").addEventListener("click", (e) => {
       const li = e.target.closest(".track");
-      if (!li || e.target.closest(".like") || e.target.closest(".row-play")) return;
+      if (!li || e.target.closest(".row-play")) return;
       playFrom(Number(li.dataset.index));
     });
   }
-
-  document.querySelectorAll("[data-view]").forEach((a) =>
-    a.addEventListener("click", (e) => { e.preventDefault(); setView(a.dataset.view); }));
 
   document.addEventListener("keydown", (e) => {
     if (e.target.matches("input, textarea") && e.target.type !== "range") return;
