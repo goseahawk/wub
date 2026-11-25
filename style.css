@@ -405,3 +405,9 @@ body.np-open { overflow: hidden; }
   background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 35%, transparent) var(--p, 0%), transparent var(--p, 0%));
 }
 .dl-btn.labeled.done { color: var(--accent); border-color: var(--accent); }
+
+/* After a finished download the pill shrinks to just the checkmark */
+.dl-btn.labeled { transition: padding .35s ease, gap .35s ease; }
+.dl-btn.labeled .dl-text { max-width: 220px; overflow: hidden; transition: max-width .35s ease, opacity .25s ease; }
+.dl-btn.labeled.collapsed { padding: 0 7px; gap: 0; border-color: transparent; }
+.dl-btn.labeled.collapsed .dl-text { max-width: 0; opacity: 0; }

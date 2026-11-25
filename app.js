@@ -22,6 +22,7 @@
     selected: -1,
     downloaded: new Set(),  // track indices saved on this device
     downloading: false,
+    showDoneLabel: false,   // "Available offline" text, shown briefly after a download
   };
 
   const tracks = album.tracks.map((t, i) => ({ ...t, src: encodeURI(t.file), index: i, artist: t.artist || album.artist }));
@@ -448,6 +449,8 @@
       : "Download for offline";
     dlBtn.classList.toggle("busy", state.downloading);
     dlBtn.classList.toggle("done", all && !state.downloading);
+    // Once finished, the text gives way to just the checkmark.
+    dlBtn.classList.toggle("collapsed", all && !state.downloading && !state.showDoneLabel);
     dlBtn.style.setProperty("--p", pct + "%");
     dlBtn.querySelector(".dl-pct").textContent = Math.round(pct) + "%";
     const label = state.downloading ? "Downloading…"
@@ -502,6 +505,10 @@
       }
       try { navigator.storage?.persist?.(); } catch {}
       toast("Downloaded. wubb now plays offline.");
+      if (state.downloaded.size === tracks.length) {
+        state.showDoneLabel = true;
+        setTimeout(() => { state.showDoneLabel = false; renderDlBtn(); }, 3500);
+      }
     } catch (err) {
       toast(err && err.name === "QuotaExceededError"
         ? "Not enough storage on this device."
@@ -518,6 +525,7 @@
       await Promise.all(tracks.map((t) => cache.delete(songUrl(t))));
     } catch {}
     state.downloaded = new Set();
+    state.showDoneLabel = false;
     renderDlBtn();
     renderList();
     toast("Removed downloads from this device.");
