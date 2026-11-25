@@ -16,7 +16,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
+html, body { height: 100%; margin: 0; touch-action: pan-x pan-y; } /* no pinch or double-tap zoom */
 body { background: #000; color: var(--text); overflow: hidden; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 a { color: inherit; text-decoration: none; }

@@ -552,6 +552,10 @@
     renderList();
   });
 
+  // No pinch-to-zoom. iOS Safari ignores user-scalable=no, but honours cancelling its gesture events.
+  ["gesturestart", "gesturechange", "gestureend"].forEach((ev) =>
+    document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
+
   // ── init ──────────────────────────────────────
   drawProgress(0, 0);
   renderModes();
