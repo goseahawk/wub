@@ -20,6 +20,8 @@
     durations: {},
     missing: new Set(),
     selected: -1,
+    downloaded: new Set(),  // track indices saved on this device
+    downloading: false,
   };
 
   const tracks = album.tracks.map((t, i) => ({ ...t, src: encodeURI(t.file), index: i, artist: t.artist || album.artist }));
@@ -46,19 +48,21 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.remove(), 2600);
   };
+  const playable = (i) => navigator.onLine || state.downloaded.has(i);
   const setPct = (el) => {
     const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
     el.style.setProperty("--pct", pct + "%");
   };
 
   // Probe each file for duration (and existence) without downloading it all.
-  tracks.forEach((t) => {
+  function probe(t) {
     const a = new Audio();
     a.preload = "metadata";
     a.addEventListener("loadedmetadata", () => { state.durations[t.index] = a.duration; renderDurations(); });
-    a.addEventListener("error", () => { state.missing.add(t.index); renderList(); });
+    a.addEventListener("error", () => { if (navigator.onLine) state.missing.add(t.index); renderList(); });
     a.src = t.src;
-  });
+  }
+  tracks.forEach(probe);
 
   // ── rendering ───────────────────────────────
   function renderHeader() {
@@ -75,6 +79,8 @@
       `${album.year}<br>© ${album.year} ${escapeHtml(album.artist)}<br>℗ ${album.year} ${escapeHtml(album.artist)}`;
   }
 
+  const DL_OK = '<svg class="dl-ok" viewBox="0 0 24 24" fill="currentColor" aria-label="Downloaded"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM10.4 16.4l-4-4 1.4-1.4 2.6 2.6 5.8-5.8 1.4 1.4z"/></svg>';
+
   function renderList() {
     const body = $("tlBody");
     body.innerHTML = "";
@@ -86,6 +92,7 @@
       if (t.index === state.current && !audio.paused) li.classList.add("is-playing");
       if (t.index === state.selected) li.classList.add("selected");
       if (state.missing.has(t.index)) li.classList.add("missing");
+      if (!playable(t.index)) li.classList.add("unavailable");
       li.innerHTML = `
         <span class="c-num">
           <span class="num-text">${i + 1}</span>
@@ -96,9 +103,9 @@
         </span>
         <span class="c-title">
           <div class="t-title">${escapeHtml(t.title)}</div>
-          <div class="t-artist">${escapeHtml(t.artist)}${state.missing.has(t.index) ? " · file not found" : ""}</div>
+          <div class="t-artist">${escapeHtml(t.artist)}${state.missing.has(t.index) ? " · file not found" : !playable(t.index) ? " · not downloaded" : ""}</div>
         </span>
-        <span class="c-dur">${fmt(state.durations[t.index])}</span>`;
+        <span class="c-dur">${state.downloaded.has(t.index) ? DL_OK : ""}<span class="dur-text">${fmt(state.durations[t.index])}</span></span>`;
       body.appendChild(li);
     });
     renderHeader();
@@ -106,7 +113,7 @@
 
   function renderDurations() {
     document.querySelectorAll(".track").forEach((li) => {
-      li.querySelector(".c-dur").textContent = fmt(state.durations[li.dataset.index]);
+      li.querySelector(".dur-text").textContent = fmt(state.durations[li.dataset.index]);
     });
     renderHeader();
   }
@@ -173,14 +180,16 @@
   }
 
   function playFrom(index) {
+    if (!playable(index)) return toast("Not downloaded. Connect to the internet to play this song.");
     buildQueue(index);
     load(state.queue[state.pos]);
   }
 
   function togglePlay() {
     if (state.current === -1) {
-      if (!tracks.length) return;
-      buildQueue(state.shuffle ? null : 0);
+      const first = tracks.find((t) => playable(t.index));
+      if (!first) return toast("You're offline. Download the album to play it offline.");
+      buildQueue(state.shuffle && navigator.onLine ? null : first.index);
       return load(state.queue[state.pos]);
     }
     audio.paused ? audio.play().catch(() => {}) : audio.pause();
@@ -194,14 +203,20 @@
       if (state.repeat === "off" && auto) { audio.pause(); audio.currentTime = 0; renderPlayState(); return; }
       if (state.shuffle) { buildQueue(null); p = 0; } else p = 0;
     }
+    // Offline: skip songs that haven't been downloaded.
+    for (let n = 0; n < state.queue.length && !playable(state.queue[p]); n++) p = (p + 1) % state.queue.length;
+    if (!playable(state.queue[p])) return toast("No downloaded songs to play offline.");
     state.pos = p;
     load(state.queue[p]);
   }
 
   function prev() {
     if (audio.currentTime > 3 || state.pos <= 0) { audio.currentTime = 0; return; }
-    state.pos -= 1;
-    load(state.queue[state.pos]);
+    let p = state.pos - 1;
+    while (p > 0 && !playable(state.queue[p])) p--;
+    if (!playable(state.queue[p])) { audio.currentTime = 0; return; }
+    state.pos = p;
+    load(state.queue[p]);
   }
 
   // ── media session (lock screen / headphone keys) ──
@@ -250,8 +265,12 @@
   audio.addEventListener("error", () => {
     if (!audio.src) return;
     const t = tracks[state.current];
-    state.missing.add(state.current);
-    toast(`Couldn't play "${t?.title}" — is ${t?.file} in place?`);
+    if (!navigator.onLine) {
+      toast("You're offline and this song isn't downloaded.");
+    } else {
+      state.missing.add(state.current);
+      toast(`Couldn't play "${t?.title}" — is ${t?.file} in place?`);
+    }
     renderPlayState();
   });
 
@@ -410,10 +429,117 @@
     }
   });
 
+  // ── Offline: download songs to this device ──────
+  const SONGS_CACHE = "wubb-songs"; // read by sw.js, which serves these files
+  const canOffline = "caches" in window && "serviceWorker" in navigator;
+  const dlBtn = $("dlBtn");
+  const songUrl = (t) => new URL(t.src, location.href).href;
+
+  function renderDlBtn(pct = 0) {
+    if (!canOffline) return;
+    dlBtn.hidden = false;
+    const all = state.downloaded.size === tracks.length;
+    dlBtn.classList.toggle("busy", state.downloading);
+    dlBtn.classList.toggle("done", all && !state.downloading);
+    dlBtn.style.setProperty("--p", pct + "%");
+    dlBtn.querySelector(".dl-pct").textContent = Math.round(pct) + "%";
+    const label = state.downloading ? "Downloading…"
+      : all ? "Downloaded for offline listening. Tap to remove."
+      : state.downloaded.size ? "Finish downloading for offline listening"
+      : "Download for offline listening";
+    dlBtn.title = label;
+    dlBtn.setAttribute("aria-label", label);
+  }
+
+  async function refreshDownloads() {
+    if (!canOffline) return;
+    try {
+      const cache = await caches.open(SONGS_CACHE);
+      const have = new Set();
+      for (const t of tracks) if (await cache.match(songUrl(t))) have.add(t.index);
+      state.downloaded = have;
+    } catch {}
+    renderDlBtn();
+    renderList();
+  }
+
+  async function downloadAll() {
+    if (state.downloading) return;
+    state.downloading = true;
+    renderDlBtn(0);
+    try {
+      await navigator.serviceWorker.ready;
+      const cache = await caches.open(SONGS_CACHE);
+      const todo = tracks.filter((t) => !state.downloaded.has(t.index));
+      for (let k = 0; k < todo.length; k++) {
+        const t = todo[k];
+        const res = await fetch(songUrl(t), { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const total = Number(res.headers.get("Content-Length")) || 0;
+        const reader = res.body.getReader();
+        const chunks = [];
+        let got = 0;
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          got += value.length;
+          if (total) renderDlBtn(((k + got / total) / todo.length) * 100);
+        }
+        await cache.put(songUrl(t), new Response(new Blob(chunks), {
+          headers: { "Content-Type": res.headers.get("Content-Type") || "audio/mpeg" },
+        }));
+        state.downloaded.add(t.index);
+        renderDlBtn(((k + 1) / todo.length) * 100);
+        renderList();
+      }
+      try { navigator.storage?.persist?.(); } catch {}
+      toast("Downloaded. wubb now plays offline.");
+    } catch (err) {
+      toast(err && err.name === "QuotaExceededError"
+        ? "Not enough storage on this device."
+        : "Download interrupted. Check your connection and try again.");
+    } finally {
+      state.downloading = false;
+      renderDlBtn();
+    }
+  }
+
+  async function removeDownloads() {
+    try {
+      const cache = await caches.open(SONGS_CACHE);
+      await Promise.all(tracks.map((t) => cache.delete(songUrl(t))));
+    } catch {}
+    state.downloaded = new Set();
+    renderDlBtn();
+    renderList();
+    toast("Removed downloads from this device.");
+  }
+
+  dlBtn.onclick = () => {
+    if (state.downloading) return;
+    if (state.downloaded.size === tracks.length) {
+      if (confirm("Remove the downloaded songs from this device?")) removeDownloads();
+    } else {
+      downloadAll();
+    }
+  };
+
+  window.addEventListener("offline", () => {
+    toast("You're offline. Downloaded songs still play.");
+    renderList();
+  });
+  window.addEventListener("online", () => {
+    tracks.forEach((t) => { if (!(t.index in state.durations)) probe(t); });
+    renderList();
+  });
+
   // ── init ──────────────────────────────────────
   drawProgress(0, 0);
   renderModes();
   renderNow();
   renderList();
   renderPlayState();
+  renderDlBtn();
+  refreshDownloads();
 })();

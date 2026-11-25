@@ -25,6 +25,7 @@ Then open http://localhost:8000. It can be hosted on any static host (GitHub Pag
 
 - Album page with track list, total length, and now-playing equalizer
 - Player bar: play/pause, previous/next, shuffle, repeat (all / one), touch-friendly scrubbing, volume/mute
+- Offline mode: the download button (next to shuffle) saves the album to the device; the app and downloaded songs then work with no connection (`sw.js`)
 - Now Playing screen: tap the player bar (swipe down or tap the arrow to close)
 - Lock-screen / headphone media controls
 - Keyboard: Space play/pause · ←/→ seek 5s · Shift+←/→ prev/next · ↑/↓ volume · S shuffle · R repeat · M mute
