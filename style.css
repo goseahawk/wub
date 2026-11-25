@@ -349,6 +349,7 @@ body.np-open { overflow: hidden; }
   padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
   text-align: center;
   animation: sheet-up .25s ease-out;
+  max-height: 92vh; max-height: 92dvh; overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 .sheet-icon { width: 64px; height: 64px; border-radius: 14px; }
 .sheet h2 { font-size: 20px; margin: 12px 0 16px; }
@@ -362,6 +363,9 @@ body.np-open { overflow: hidden; }
   width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
   background: var(--accent); color: #000; font-weight: 800; font-size: 13px;
 }
+.sheet-steps li { align-items: flex-start; }
+.sheet-steps li > span { flex: 1; min-width: 0; padding-top: 3px; }
+.step-shot { display: block; width: 100%; height: auto; margin-top: 12px; border-radius: 10px; }
 .sheet-steps svg { display: inline-block; width: 18px; height: 18px; vertical-align: -3px; }
 .sheet-close {
   width: 100%; padding: 14px; border-radius: 999px;
