@@ -1,6 +1,6 @@
 // Minimal service worker: makes wubb installable and lets the app shell
 // open offline. Songs are always streamed from the network.
-const CACHE = "wubb-shell-v6";
+const CACHE = "wubb-shell-v7";
 const SHELL = ["./", "index.html", "style.css", "app.js", "album.js", "install.js", "assets/cover.jpg", "assets/icon-192.png"];
 
 self.addEventListener("install", (e) => {
