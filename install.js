@@ -16,6 +16,13 @@
   const isPhone = (isIOS || isAndroid) && matchMedia("(pointer: coarse)").matches;
   const installed = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 
+  // Other scripts (the download button) ask this: on a phone, is the app still
+  // just a browser tab? prompt() then does exactly what "Add to Home Screen" does.
+  window.wubbInstall = {
+    needsInstall: () => isPhone && !installed(),
+    prompt: () => {},
+  };
+
   if (!isPhone || installed()) return;
 
   let deferred = null;
@@ -52,7 +59,7 @@
   };
   const closeSheet = () => { sheet.hidden = true; };
 
-  btn.addEventListener("click", async () => {
+  const startInstall = async () => {
     if (deferred) {
       deferred.prompt();
       const { outcome } = await deferred.userChoice;
@@ -61,7 +68,9 @@
       return;
     }
     openSheet();
-  });
+  };
+  btn.addEventListener("click", startInstall);
+  window.wubbInstall.prompt = startInstall;
   $("sheetClose").addEventListener("click", closeSheet);
   sheet.addEventListener("click", (e) => { if (e.target === sheet) closeSheet(); });
 })();

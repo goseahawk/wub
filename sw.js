@@ -2,7 +2,7 @@
 //  • makes the app installable and lets the app shell open offline
 //  • serves songs the listener has downloaded (see the download button),
 //    including HTTP Range requests, which audio elements need for seeking
-const CACHE = "wubb-shell-v8";
+const CACHE = "wubb-shell-v9";
 const SONGS = "wubb-songs"; // downloaded songs; kept across app updates
 const SHELL = ["./", "index.html", "style.css", "app.js", "album.js", "install.js", "assets/cover.jpg", "assets/icon-192.png"];
 

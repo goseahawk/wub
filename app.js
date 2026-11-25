@@ -518,6 +518,9 @@
 
   dlBtn.onclick = () => {
     if (state.downloading) return;
+    // On phones, downloads only work from the installed web app (browsers can
+    // clear a plain tab's saved songs). Otherwise, do what "Add to Home Screen" does.
+    if (window.wubbInstall && window.wubbInstall.needsInstall()) return window.wubbInstall.prompt();
     if (state.downloaded.size === tracks.length) {
       if (confirm("Remove the downloaded songs from this device?")) removeDownloads();
     } else {
