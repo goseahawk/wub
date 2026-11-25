@@ -1,4 +1,4 @@
-// Add to Home Screen — shown on phones only, hidden once installed.
+// "Get App" button (installs to the Home Screen) — shown on phones only, hidden once installed.
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
@@ -17,7 +17,7 @@
   const installed = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 
   // Other scripts (the download button) ask this: on a phone, is the app still
-  // just a browser tab? prompt() then does exactly what "Add to Home Screen" does.
+  // just a browser tab? prompt() then does exactly what the "Get App" button does.
   window.wubbInstall = {
     needsInstall: () => isPhone && !installed(),
     prompt: () => {},

@@ -450,7 +450,7 @@
     dlBtn.hidden = false;
     const all = state.downloaded.size === tracks.length;
     // Spell it out whenever there's room (installed app, or a computer); a phone
-    // browser tab keeps the compact icon next to the Add to Home Screen button.
+    // browser tab keeps the compact icon next to the Get App button.
     dlBtn.classList.toggle("labeled", !(window.wubbInstall && window.wubbInstall.needsInstall()));
     dlBtn.querySelector(".dl-text").textContent = state.downloading ? `Downloading… ${Math.round(pct)}%`
       : all ? "Available offline"
@@ -543,7 +543,7 @@
   dlBtn.onclick = () => {
     if (state.downloading) return;
     // On phones, downloads only work from the installed web app (browsers can
-    // clear a plain tab's saved songs). Otherwise, do what "Add to Home Screen" does.
+    // clear a plain tab's saved songs). Otherwise, do what the "Get App" button does.
     if (window.wubbInstall && window.wubbInstall.needsInstall()) return window.wubbInstall.prompt();
     if (state.downloaded.size === tracks.length) {
       if (confirm("Remove the downloaded songs from this device?")) removeDownloads();
