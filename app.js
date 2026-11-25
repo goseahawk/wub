@@ -3,6 +3,7 @@
 
   const album = window.WUB_ALBUM;
   const $ = (id) => document.getElementById(id);
+  const $$ = (sel) => document.querySelectorAll(sel);
   const audio = $("audio");
 
   const store = {
@@ -112,8 +113,10 @@
 
   function renderPlayState() {
     const playing = !audio.paused;
-    $("playBtn").classList.toggle("playing", playing);
-    $("playBtn").setAttribute("aria-label", playing ? "Pause" : "Play");
+    $$(".js-play").forEach((b) => {
+      b.classList.toggle("playing", playing);
+      b.setAttribute("aria-label", playing ? "Pause" : "Play");
+    });
     $("bigPlay").classList.toggle("playing", playing);
     renderList();
     const t = tracks[state.current];
@@ -122,15 +125,19 @@
 
   function renderNow() {
     const t = tracks[state.current];
-    $("nowTitle").textContent = t ? t.title : "—";
-    $("nowArtist").textContent = t ? t.artist : album.artist;
+    $$(".js-title").forEach((el) => { el.textContent = t ? t.title : "—"; });
+    $$(".js-artist").forEach((el) => { el.textContent = t ? t.artist : album.artist; });
+    $("npAlbum").textContent = album.title;
+    $("npCover").src = album.cover;
+    document.body.classList.toggle("has-track", !!t);
   }
 
   function renderModes() {
-    $("shuffleBtn").classList.toggle("on", state.shuffle);
-    $("shuffleBtnTop").classList.toggle("on", state.shuffle);
-    $("repeatBtn").classList.toggle("on", state.repeat !== "off");
-    $("repeatBtn").classList.toggle("one", state.repeat === "one");
+    $$(".js-shuffle").forEach((b) => b.classList.toggle("on", state.shuffle));
+    $$(".js-repeat").forEach((b) => {
+      b.classList.toggle("on", state.repeat !== "off");
+      b.classList.toggle("one", state.repeat === "one");
+    });
   }
 
   function escapeHtml(s) {
@@ -218,20 +225,27 @@
   }
 
   // ── audio events ─────────────────────────────
-  let seeking = false;
+  // Draws the progress everywhere it appears (player bar, mini bar, Now Playing).
+  let scrubbing = false;
+  function drawProgress(frac, secs) {
+    const pct = Math.max(0, Math.min(1, frac)) * 100 + "%";
+    $$(".scrub").forEach((el) => {
+      el.style.setProperty("--pct", pct);
+      el.setAttribute("aria-valuenow", Math.round(frac * 100));
+    });
+    document.querySelector(".mini-progress i").style.width = pct;
+    $$(".js-cur").forEach((el) => { el.textContent = fmt(secs); });
+  }
   audio.addEventListener("play", renderPlayState);
   audio.addEventListener("pause", renderPlayState);
   audio.addEventListener("ended", () => next(true));
   audio.addEventListener("loadedmetadata", () => {
-    $("durTime").textContent = fmt(audio.duration);
+    $$(".js-dur").forEach((el) => { el.textContent = fmt(audio.duration); });
     state.durations[state.current] = audio.duration;
   });
   audio.addEventListener("timeupdate", () => {
-    if (seeking || !audio.duration) return;
-    const seek = $("seek");
-    seek.value = (audio.currentTime / audio.duration) * 1000;
-    setPct(seek);
-    $("curTime").textContent = fmt(audio.currentTime);
+    if (scrubbing || !audio.duration) return;
+    drawProgress(audio.currentTime / audio.duration, audio.currentTime);
   });
   audio.addEventListener("error", () => {
     if (!audio.src) return;
@@ -242,33 +256,102 @@
   });
 
   // ── UI events ─────────────────────────────────
-  $("playBtn").onclick = togglePlay;
+  $$(".js-play").forEach((b) => { b.onclick = (e) => { e.stopPropagation(); togglePlay(); }; });
   $("bigPlay").onclick = togglePlay;
-  $("nextBtn").onclick = () => next();
-  $("prevBtn").onclick = prev;
+  $$(".js-next").forEach((b) => { b.onclick = () => next(); });
+  $$(".js-prev").forEach((b) => { b.onclick = prev; });
   const toggleShuffle = () => {
     state.shuffle = !state.shuffle;
     store.set("shuffle", state.shuffle);
     if (state.current !== -1) buildQueue(state.current);
     renderModes();
   };
-  $("shuffleBtn").onclick = toggleShuffle;
-  $("shuffleBtnTop").onclick = toggleShuffle;
+  $$(".js-shuffle").forEach((b) => { b.onclick = toggleShuffle; });
   const cycleRepeat = () => {
     state.repeat = { off: "all", all: "one", one: "off" }[state.repeat];
     store.set("repeat", state.repeat);
     renderModes();
   };
-  $("repeatBtn").onclick = cycleRepeat;
+  $$(".js-repeat").forEach((b) => { b.onclick = cycleRepeat; });
 
-  const seek = $("seek");
-  seek.addEventListener("input", () => {
-    seeking = true; setPct(seek);
-    if (audio.duration) $("curTime").textContent = fmt((seek.value / 1000) * audio.duration);
+  // Scrubber: works with mouse, touch and pen. The whole padded bar is the
+  // touch target, and you can drag anywhere along it (not just the knob).
+  $$(".scrub").forEach((el) => {
+    const bar = el.querySelector(".scrub-track");
+    let active = null, frac = 0;
+    const fracAt = (x) => {
+      const r = bar.getBoundingClientRect();
+      return Math.max(0, Math.min(1, (x - r.left) / r.width));
+    };
+    el.addEventListener("pointerdown", (e) => {
+      if (!audio.duration || (e.pointerType === "mouse" && e.button !== 0)) return;
+      e.preventDefault();
+      active = e.pointerId; scrubbing = true;
+      el.setPointerCapture(e.pointerId);
+      el.classList.add("active");
+      frac = fracAt(e.clientX);
+      drawProgress(frac, frac * audio.duration);
+    });
+    el.addEventListener("pointermove", (e) => {
+      if (e.pointerId !== active) return;
+      frac = fracAt(e.clientX);
+      drawProgress(frac, frac * audio.duration);
+    });
+    const finish = (e) => {
+      if (e.pointerId !== active) return;
+      active = null;
+      el.classList.toggle("active", false);
+      if (audio.duration) audio.currentTime = frac * audio.duration;
+      scrubbing = false;
+    };
+    el.addEventListener("pointerup", finish);
+    el.addEventListener("pointercancel", finish);
+    el.addEventListener("click", (e) => e.stopPropagation());
   });
-  seek.addEventListener("change", () => {
-    if (audio.duration) audio.currentTime = (seek.value / 1000) * audio.duration;
-    seeking = false;
+
+  // ── Now Playing screen ───────────────────────
+  const np = $("np"), npInner = $("npInner");
+  const isNpOpen = () => !np.hidden;
+  function openNp() {
+    if (state.current === -1 || isNpOpen()) return;
+    np.hidden = false;
+    document.body.classList.add("np-open");
+    history.pushState({ np: true }, "");
+  }
+  function closeNp(fromHistory = false) {
+    if (!isNpOpen()) return;
+    np.classList.add("closing");
+    setTimeout(() => {
+      np.hidden = true;
+      np.classList.toggle("closing", false);
+      npInner.style.transform = "";
+    }, 220);
+    document.body.classList.toggle("np-open", false);
+    if (!fromHistory && history.state && history.state.np) history.back();
+  }
+  $("openNow").addEventListener("click", openNp);
+  $("openNow").addEventListener("keydown", (e) => { if (e.key === "Enter") openNp(); });
+  $("npClose").onclick = () => closeNp();
+  window.addEventListener("popstate", () => closeNp(true));
+
+  // Swipe down to close (touch only, and not while scrubbing).
+  let swipeY = null;
+  npInner.addEventListener("touchstart", (e) => {
+    if (e.target.closest(".scrub, button")) return;
+    swipeY = e.touches[0].clientY;
+  }, { passive: true });
+  npInner.addEventListener("touchmove", (e) => {
+    if (swipeY == null) return;
+    const dy = Math.max(0, e.touches[0].clientY - swipeY);
+    npInner.style.transition = "none";
+    npInner.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+  npInner.addEventListener("touchend", (e) => {
+    if (swipeY == null) return;
+    const dy = e.changedTouches[0].clientY - swipeY;
+    swipeY = null;
+    npInner.style.transition = "";
+    if (dy > 120) closeNp(); else npInner.style.transform = "";
   });
 
   const vol = $("volume");
@@ -312,6 +395,7 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.target.matches("input, textarea") && e.target.type !== "range") return;
+    if (e.key === "Escape") return closeNp();
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     switch (e.key) {
       case " ": e.preventDefault(); togglePlay(); break;
@@ -327,7 +411,7 @@
   });
 
   // ── init ──────────────────────────────────────
-  setPct(seek);
+  drawProgress(0, 0);
   renderModes();
   renderNow();
   renderList();
