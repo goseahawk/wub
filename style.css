@@ -380,7 +380,7 @@ body.np-open { overflow: hidden; }
 .shot { display: block; position: relative; margin-top: 12px; border-radius: 10px; overflow: hidden; }
 .shot img { display: block; width: 100%; height: auto; }
 .shot-ring {
-  position: absolute; left: 3.2%; width: 93.6%; top: 77.6%; height: 21%;
+  position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h);
   border: 3px solid var(--accent); border-radius: 12px;
   animation: ring 1.4s ease-in-out infinite;
 }
@@ -389,7 +389,7 @@ body.np-open { overflow: hidden; }
   50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 0%, transparent); }
 }
 .shot-tag {
-  position: absolute; right: 5%; top: calc(77.6% - 34px);
+  position: absolute; right: 5%; top: calc(var(--y) - 34px);
   background: var(--accent); color: #11130f; font-size: 13px; font-weight: 800;
   padding: 4px 10px; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,.5);
 }

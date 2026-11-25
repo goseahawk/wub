@@ -35,21 +35,28 @@
   const pageMenuIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6.5h16M4 12h14M4 17.5h9"/></svg>';
   const dotsIcon = '<svg viewBox="0 0 24 24"><path d="M12 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>';
 
+  // A screenshot with one row lit up, outlined and labelled "Tap this".
+  // ring = [left, top, width, height] of that row, in % of the image.
+  const shot = (src, w, h, alt, [x, y, rw, rh]) =>
+    `<span class="shot" style="--x:${x}%;--y:${y}%;--w:${rw}%;--h:${rh}%">` +
+      `<img src="${src}" width="${w}" height="${h}" alt="${alt}" />` +
+      `<span class="shot-ring" aria-hidden="true"></span>` +
+      `<span class="shot-tag" aria-hidden="true">Tap this</span>` +
+    `</span>`;
+
   function instructions() {
     if (isIOS) {
       const safari = !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
       return [
         safari
-          ? `Tap the ${pageMenuIcon} button at the left of the address bar, then tap <b>Share</b> ${shareIcon}. (On older iPhones, just tap ${shareIcon} at the bottom.)`
+          ? `Tap the ${pageMenuIcon} button at the left of the address bar. In the menu that opens, tap <b>Share</b> ${shareIcon}.` +
+            shot("assets/ios-page-menu.jpg", 720, 533, "Safari's page menu, with Share near the top", [1.2, 34.2, 97.6, 21.6]) +
+            `<span class="step-note">On an older iPhone, just tap ${shareIcon} in the toolbar at the bottom of the screen.</span>`
           : `Tap the <b>Share</b> button ${shareIcon} next to the address bar.`,
         `<b>Scroll down</b> in the menu that pops up. The option you need is near the bottom, so it's usually hidden at first.` +
           `<span class="scroll-cue" aria-hidden="true"><i></i><i></i><i></i></span>`,
         `Tap <b>Add to Home Screen</b> ${plusIcon}. It looks like this:` +
-          `<span class="shot">` +
-            `<img src="assets/ios-share-sheet.jpg" width="720" height="482" alt="The iPhone share menu, with Add to Home Screen at the bottom of the list" />` +
-            `<span class="shot-ring" aria-hidden="true"></span>` +
-            `<span class="shot-tag" aria-hidden="true">Tap this</span>` +
-          `</span>` +
+          shot("assets/ios-share-sheet.jpg", 720, 482, "The iPhone share menu, with Add to Home Screen at the bottom of the list", [3.2, 77.6, 93.6, 21]) +
           `<span class="step-note">Not in the list? Tap <b>View More</b> in the row of round buttons above it, then scroll down again.</span>`,
         `Tap <b>Add</b>. wubb will appear on your Home Screen.`,
       ];
