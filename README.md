@@ -12,7 +12,7 @@ Plain HTML/CSS/JS — no build step.
    { title: "Song Name", file: "songs/01-song-name.mp3" },
    ```
    Durations and the album length are read from the files automatically.
-3. To change the cover, replace `assets/cover.svg` (or point `cover` in `album.js` at a jpg/png).
+3. To change the cover, replace `assets/cover.jpg` (square, about 1000×1000) and regenerate the `assets/icon-*.png` app icons.
 
 ## Running it
 

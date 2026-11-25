@@ -212,7 +212,7 @@
     const cover = new URL(album.cover, location.href).href;
     navigator.mediaSession.metadata = new MediaMetadata({
       title: t.title, artist: t.artist, album: album.title,
-      artwork: [{ src: cover, sizes: "600x600", type: "image/svg+xml" }],
+      artwork: [{ src: cover, sizes: "1000x1000", type: "image/jpeg" }],
     });
   }
   if ("mediaSession" in navigator) {

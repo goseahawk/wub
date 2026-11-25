@@ -8,7 +8,7 @@ window.WUB_ALBUM = {
   title: "wubb",
   artist: "wubb",
   year: 2026,
-  cover: "assets/cover.svg",
+  cover: "assets/cover.jpg",
   tracks: [
     { title: "Block of Writers", file: "songs/1. Block of Writers.mp3" },
     { title: "Cross", file: "songs/2. Cross.mp3" },
