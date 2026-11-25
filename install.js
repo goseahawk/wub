@@ -42,8 +42,15 @@
         safari
           ? `Tap the ${pageMenuIcon} button at the left of the address bar, then tap <b>Share</b> ${shareIcon}. (On older iPhones, just tap ${shareIcon} at the bottom.)`
           : `Tap the <b>Share</b> button ${shareIcon} next to the address bar.`,
-        `In the share sheet, tap <b>View More</b> if you see it (the last button in the top row), then tap <b>Add to Home Screen</b> ${plusIcon}.` +
-          `<img class="step-shot" src="assets/ios-add-to-home.jpg" width="720" height="748" alt="The Add to Home Screen option, highlighted in the iPhone share sheet" />`,
+        `<b>Scroll down</b> in the menu that pops up. The option you need is near the bottom, so it's usually hidden at first.` +
+          `<span class="scroll-cue" aria-hidden="true"><i></i><i></i><i></i></span>`,
+        `Tap <b>Add to Home Screen</b> ${plusIcon}. It looks like this:` +
+          `<span class="shot">` +
+            `<img src="assets/ios-share-sheet.jpg" width="720" height="482" alt="The iPhone share menu, with Add to Home Screen at the bottom of the list" />` +
+            `<span class="shot-ring" aria-hidden="true"></span>` +
+            `<span class="shot-tag" aria-hidden="true">Tap this</span>` +
+          `</span>` +
+          `<span class="step-note">Not in the list? Tap <b>View More</b> in the row of round buttons above it, then scroll down again.</span>`,
         `Tap <b>Add</b>. wubb will appear on your Home Screen.`,
       ];
     }
