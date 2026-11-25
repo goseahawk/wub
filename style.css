@@ -147,13 +147,24 @@ svg { width: 20px; height: 20px; fill: currentColor; display: block; }
   height: 56px; border-radius: 6px; color: var(--muted); cursor: default;
   user-select: none;
 }
-.track:hover { background: var(--hover); }
 .track.selected { background: #31362c; }
 .track .c-num { position: relative; font-variant-numeric: tabular-nums; font-size: 16px; }
 .track .row-play { display: none; margin-left: auto; color: var(--text); }
 .track .row-play svg { width: 16px; height: 16px; }
-.track:hover .num-text, .track:hover .eq { display: none; }
-.track:hover .row-play { display: block; }
+/* Mouse: hovering a row swaps its number for a play button.
+   Touch screens skip hover entirely (on iPhone it would swallow a tap) and
+   show the play button on the selected row instead: tap once to select,
+   tap again to play. */
+@media (hover: hover) {
+  .track:hover { background: var(--hover); }
+  .track:hover .num-text, .track:hover .eq { display: none; }
+  .track:hover .row-play { display: block; }
+  .track.current.is-playing:hover .eq { display: none; }
+}
+@media (hover: none) {
+  .track.selected .num-text, .track.selected .eq { display: none; }
+  .track.selected .row-play { display: block; }
+}
 .t-title { color: var(--text); font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t-artist { font-size: 14px; }
 .track.current .t-title, .track.current .num-text { color: var(--accent); }
@@ -162,7 +173,6 @@ svg { width: 20px; height: 20px; fill: currentColor; display: block; }
 .eq { display: none; gap: 2px; height: 14px; align-items: flex-end; justify-content: flex-end; }
 .track.current.is-playing .num-text { display: none; }
 .track.current.is-playing .eq { display: flex; }
-.track.current.is-playing:hover .eq { display: none; }
 .eq i { width: 3px; background: var(--accent); border-radius: 1px; animation: eq 0.9s ease-in-out infinite; }
 .eq i:nth-child(2) { animation-delay: -.3s; }
 .eq i:nth-child(3) { animation-delay: -.6s; }

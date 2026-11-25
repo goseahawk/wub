@@ -388,30 +388,36 @@
   $("muteBtn").onclick = () => applyVol(Number(vol.value) === 0 ? (lastVol || 80) : 0);
   applyVol(lastVol);
 
+  // Track rows. Computer: click selects, double-click plays.
+  // Phone: tap once to select (the row shows a play button), tap the same
+  // row again to play it. This guards against changing songs by accident.
+  const isTouch = matchMedia("(hover: none)").matches;
+  const select = (li, index) => {
+    state.selected = index;
+    document.querySelectorAll(".track.selected").forEach((el) => el.classList.remove("selected"));
+    li.classList.add("selected");
+  };
+  const playRow = (index) => {
+    if (index === state.current) { if (audio.paused) togglePlay(); }  // don't restart the song that's on
+    else playFrom(index);
+    if (isTouch) { state.selected = -1; renderList(); }               // back to the equalizer
+  };
   $("tlBody").addEventListener("click", (e) => {
     const li = e.target.closest(".track");
     if (!li) return;
     const index = Number(li.dataset.index);
     if (e.target.closest(".row-play")) {
-      return index === state.current ? togglePlay() : playFrom(index);
+      if (index === state.current) return togglePlay();
+      return playRow(index);
     }
-    state.selected = index;
-    document.querySelectorAll(".track.selected").forEach((el) => el.classList.remove("selected"));
-    li.classList.add("selected");
+    if (isTouch && state.selected === index) return playRow(index);
+    select(li, index);
   });
   $("tlBody").addEventListener("dblclick", (e) => {
     const li = e.target.closest(".track");
-    if (!li) return;
-    playFrom(Number(li.dataset.index));
+    if (!li || isTouch) return;
+    playRow(Number(li.dataset.index));
   });
-  // On touch screens a single tap plays the row.
-  if (matchMedia("(hover: none)").matches) {
-    $("tlBody").addEventListener("click", (e) => {
-      const li = e.target.closest(".track");
-      if (!li || e.target.closest(".row-play")) return;
-      playFrom(Number(li.dataset.index));
-    });
-  }
 
   document.addEventListener("keydown", (e) => {
     if (e.target.matches("input, textarea") && e.target.type !== "range") return;
