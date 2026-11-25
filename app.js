@@ -439,6 +439,13 @@
     if (!canOffline) return;
     dlBtn.hidden = false;
     const all = state.downloaded.size === tracks.length;
+    // Spell it out whenever there's room (installed app, or a computer); a phone
+    // browser tab keeps the compact icon next to the Add to Home Screen button.
+    dlBtn.classList.toggle("labeled", !(window.wubbInstall && window.wubbInstall.needsInstall()));
+    dlBtn.querySelector(".dl-text").textContent = state.downloading ? `Downloading… ${Math.round(pct)}%`
+      : all ? "Available offline"
+      : state.downloaded.size ? "Finish download"
+      : "Download for offline";
     dlBtn.classList.toggle("busy", state.downloading);
     dlBtn.classList.toggle("done", all && !state.downloading);
     dlBtn.style.setProperty("--p", pct + "%");

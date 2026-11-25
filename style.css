@@ -390,3 +390,18 @@ body.np-open { overflow: hidden; }
   .actions { flex-wrap: wrap; gap: 12px; }
   .install-btn { font-size: 13px; padding: 8px 12px 8px 10px; }
 }
+
+/* Labelled download button (installed app / computers) */
+.dl-text { display: none; }
+.dl-btn.labeled {
+  width: auto; padding: 0 16px 0 10px; gap: 8px; grid-auto-flow: column; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--text);
+}
+.dl-btn.labeled .dl-text { display: block; font-size: 14px; font-weight: 700; white-space: nowrap; }
+.dl-btn.labeled svg { width: 26px; height: 26px; }
+.dl-btn.labeled.busy::before, .dl-btn.labeled .dl-pct { display: none; }
+.dl-btn.labeled.busy .i-dl { display: block; opacity: .6; }
+.dl-btn.labeled.busy {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 35%, transparent) var(--p, 0%), transparent var(--p, 0%));
+}
+.dl-btn.labeled.done { color: var(--accent); border-color: var(--accent); }
