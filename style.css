@@ -451,9 +451,3 @@ body.np-open { overflow: hidden; }
 .dl-btn.labeled .dl-text { max-width: 220px; overflow: hidden; transition: max-width .35s ease, opacity .25s ease; }
 .dl-btn.labeled.collapsed { padding: 0 7px; gap: 0; border-color: transparent; }
 .dl-btn.labeled.collapsed .dl-text { max-width: 0; opacity: 0; }
-
-/* On computers the install instructions open as a centred dialog */
-@media (min-width: 821px) {
-  .sheet-backdrop { align-items: center; }
-  .sheet { border-radius: 16px; padding-bottom: 24px; }
-}

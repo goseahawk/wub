@@ -36,10 +36,8 @@ Then open http://localhost:8000. It can be hosted on any static host (GitHub Pag
 Settings → Pages → Build and deployment → Source: **Deploy from a branch**, pick the branch and `/ (root)`, Save.
 The site appears at `https://<user>.github.io/<repo>/` within a minute or two, and redeploys on every push.
 
-## Get App (install as an app)
+## Get App (install to the Home Screen)
 
-There's a **Get App** button next to the shuffle button. In Chrome and Edge (Android and computers)
-it opens the browser's own install dialog. On iPhone it shows step-by-step instructions with
-screenshots, and on a Mac in Safari it explains File → Add to Dock. Desktop Firefox can't install
-web apps, so there the button just shows an apology. Once installed, wubb opens in its own window or full
-screen, and the button no longer shows. (`manifest.webmanifest`, `sw.js`, `install.js`)
+On phones there's a **Get App** button next to the shuffle button. On Android it opens the
+browser's install prompt; on iPhone it shows step-by-step instructions. Once installed, wubb opens
+full screen like an app, and the button no longer shows. (`manifest.webmanifest`, `sw.js`, `install.js`)

@@ -1,6 +1,4 @@
-// "Get App" button: installs wubb as an app (Home Screen on phones, its own window on
-// computers). Hidden once installed. Desktop Firefox can't install web apps, so there the
-// button just apologises.
+// "Get App" button (installs to the Home Screen) — shown on phones only, hidden once installed.
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
@@ -16,9 +14,6 @@
   const isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const isAndroid = /Android/.test(ua);
   const isPhone = (isIOS || isAndroid) && matchMedia("(pointer: coarse)").matches;
-  const isFirefoxDesktop = /Firefox\//.test(ua) && !isIOS && !isAndroid;
-  const isEdge = /Edg\//.test(ua);
-  const isMacSafari = /Macintosh/.test(ua) && /Safari\//.test(ua) && !/Chrome|Chromium|Edg|OPR|Firefox/.test(ua) && !isIOS;
   const installed = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 
   // Other scripts (the download button) ask this: on a phone, is the app still
@@ -28,7 +23,7 @@
     prompt: () => {},
   };
 
-  if (installed()) return;
+  if (!isPhone || installed()) return;
 
   let deferred = null;
   window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferred = e; });
@@ -66,44 +61,14 @@
         `Tap <b>Add</b>. wubb will appear on your Home Screen.`,
       ];
     }
-    if (isAndroid) {
-      return [
-        `Tap the browser menu ${dotsIcon} at the top right.`,
-        `Tap <b>Add to Home screen</b> or <b>Install app</b>.`,
-        `Tap <b>Install</b>. wubb will appear on your Home Screen.`,
-      ];
-    }
-    // Computers
-    if (isMacSafari) {
-      return [
-        `In the menu bar at the top of the screen, click <b>File</b>.`,
-        `Click <b>Add to Dock…</b>`,
-        `Click <b>Add</b>. wubb will open from your Dock like any other app.` +
-          `<span class="step-note">Needs macOS Sonoma or newer.</span>`,
-      ];
-    }
-    if (isEdge) {
-      return [
-        `Click the <b>…</b> menu at the top right of the browser.`,
-        `Choose <b>Apps</b>, then <b>Install this site as an app</b>.`,
-        `Click <b>Install</b>. wubb will open in its own window, with a shortcut on your computer.`,
-      ];
-    }
     return [
-      `Click the install icon at the right end of the address bar, or open the browser menu ${dotsIcon} at the top right.`,
-      `Click <b>Install wubb…</b> In newer versions of Chrome it's under <b>Cast, save, and share</b>.`,
-      `Click <b>Install</b>. wubb will open in its own window, with a shortcut on your computer.`,
+      `Tap the browser menu ${dotsIcon} at the top right.`,
+      `Tap <b>Add to Home screen</b> or <b>Install app</b>.`,
+      `Tap <b>Install</b>. wubb will appear on your Home Screen.`,
     ];
   }
 
   const openSheet = () => {
-    if (isFirefoxDesktop) {
-      $("sheetTitle").textContent = "sorry tony i don't know how to do this on firefox :(";
-      steps.innerHTML = "";
-      sheet.hidden = false;
-      return;
-    }
-    $("sheetTitle").textContent = isIOS || isAndroid ? "Add wubb to your Home Screen" : "Install wubb on your computer";
     steps.innerHTML = instructions().map((s) => `<li><span>${s}</span></li>`).join("");
     sheet.hidden = false;
   };
