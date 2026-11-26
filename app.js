@@ -561,6 +561,9 @@
     renderList();
   });
 
+  // No text selection (CSS covers this; this catches browsers that ignore it).
+  document.addEventListener("selectstart", (e) => e.preventDefault());
+
   // No pinch-to-zoom. iOS Safari ignores user-scalable=no, but honours cancelling its gesture events.
   ["gesturestart", "gesturechange", "gestureend"].forEach((ev) =>
     document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
