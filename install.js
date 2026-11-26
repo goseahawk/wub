@@ -1,5 +1,6 @@
 // "Get App" button: installs wubb as an app (Home Screen on phones, its own window on
-// computers). Hidden once installed, and in desktop Firefox, which can't install web apps.
+// computers). Hidden once installed. Desktop Firefox can't install web apps, so there the
+// button just apologises.
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
@@ -27,7 +28,7 @@
     prompt: () => {},
   };
 
-  if (installed() || (!isPhone && isFirefoxDesktop)) return;
+  if (installed()) return;
 
   let deferred = null;
   window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferred = e; });
@@ -96,6 +97,12 @@
   }
 
   const openSheet = () => {
+    if (isFirefoxDesktop) {
+      $("sheetTitle").textContent = "sorry Tony i don't know how to do this on firefox :(";
+      steps.innerHTML = "";
+      sheet.hidden = false;
+      return;
+    }
     $("sheetTitle").textContent = isIOS || isAndroid ? "Add wubb to your Home Screen" : "Install wubb on your computer";
     steps.innerHTML = instructions().map((s) => `<li><span>${s}</span></li>`).join("");
     sheet.hidden = false;
