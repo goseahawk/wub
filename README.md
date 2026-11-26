@@ -29,7 +29,10 @@ Then open http://localhost:8000. It can be hosted on any static host (GitHub Pag
 - Now Playing screen: tap the player bar (swipe down or tap the arrow to close)
 - Lock-screen / headphone media controls
 - Keyboard: Space play/pause · ←/→ seek 5s · Shift+←/→ prev/next · ↑/↓ volume · S shuffle · R repeat · M mute
-- Works on phones
+- Works on phones, and feels like an app when installed:
+  reopens on the last song at the same spot, no bounce or pull-to-refresh, buttons press in when tapped,
+  status bar blends with the page, progress bar and scrubbing on the lock screen,
+  a launch screen on iPhone (`assets/splash/`), and an Android icon that suits any shape (`assets/icon-maskable-512.png`)
 
 ## Hosting on GitHub Pages
 

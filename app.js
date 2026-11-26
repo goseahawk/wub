@@ -174,10 +174,12 @@
     if (!t) return;
     state.current = index;
     audio.src = t.src;
+    if (autoplay) quietErrors = false;
     renderNow();
     updateMediaSession();
     if (autoplay) audio.play().catch(() => {});
     renderPlayState();
+    saveSession();
   }
 
   function playFrom(index) {
@@ -193,6 +195,8 @@
       buildQueue(state.shuffle && navigator.onLine ? null : first.index);
       return load(state.queue[state.pos]);
     }
+    quietErrors = false;
+    if (audio.error) return playFrom(state.current);
     audio.paused ? audio.play().catch(() => {}) : audio.pause();
   }
 
@@ -237,8 +241,23 @@
     ms.setActionHandler("pause", () => audio.pause());
     ms.setActionHandler("previoustrack", prev);
     ms.setActionHandler("nexttrack", () => next());
-    try { ms.setActionHandler("seekto", (e) => { audio.currentTime = e.seekTime; }); } catch {}
+    try { ms.setActionHandler("seekto", (e) => { audio.currentTime = e.seekTime; updatePosition(); }); } catch {}
+    // (No seek-forward/back handlers: on iPhone they'd replace the skip-song buttons.)
   }
+  // Lock screen / Control Center progress bar
+  function updatePosition() {
+    if (!("mediaSession" in navigator)) return;
+    navigator.mediaSession.playbackState = state.current === -1 ? "none" : audio.paused ? "paused" : "playing";
+    if (!navigator.mediaSession.setPositionState || !isFinite(audio.duration) || !audio.duration) return;
+    try {
+      navigator.mediaSession.setPositionState({
+        duration: audio.duration,
+        playbackRate: audio.playbackRate || 1,
+        position: Math.min(audio.currentTime, audio.duration),
+      });
+    } catch {}
+  }
+  ["play", "pause", "seeked", "ratechange", "loadedmetadata", "durationchange"].forEach((ev) => audio.addEventListener(ev, updatePosition));
 
   // ── audio events ─────────────────────────────
   // Draws the progress everywhere it appears (player bar, mini bar, Now Playing).
@@ -260,11 +279,13 @@
     state.durations[state.current] = audio.duration;
   });
   audio.addEventListener("timeupdate", () => {
+    if (Date.now() - lastSave > 3000) saveSession();
     if (scrubbing || !audio.duration) return;
     drawProgress(audio.currentTime / audio.duration, audio.currentTime);
   });
   audio.addEventListener("error", () => {
     if (!audio.src) return;
+    if (quietErrors) return renderPlayState(); // reopening the app on a song that can't load right now
     const t = tracks[state.current];
     if (!navigator.onLine) {
       toast("You're offline and this song isn't downloaded.");
@@ -568,6 +589,63 @@
   ["gesturestart", "gesturechange", "gestureend"].forEach((ev) =>
     document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
 
+  // ── Pick up where you left off ─────────────────
+  // Saves the song, position and queue; reopening the app restores them, paused.
+  let lastSave = 0;
+  let quietErrors = false;
+  function saveSession() {
+    lastSave = Date.now();
+    if (state.current === -1) return;
+    store.set("session", {
+      track: state.current, time: audio.currentTime || 0, dur: audio.duration || state.durations[state.current] || 0,
+      queue: state.queue, pos: state.pos,
+    });
+  }
+  audio.addEventListener("pause", saveSession);
+  audio.addEventListener("seeked", saveSession);
+  window.addEventListener("pagehide", saveSession);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) saveSession(); });
+
+  function restoreSession() {
+    const s = store.get("session", null);
+    if (!s || !tracks[s.track]) return;
+    const q = s.queue;
+    const queueOk = Array.isArray(q) && q.length === tracks.length && new Set(q).size === q.length &&
+      q.every((i) => tracks[i]) && q[s.pos] === s.track;
+    if (queueOk) { state.queue = q; state.pos = s.pos; } else buildQueue(s.track);
+    quietErrors = true;
+    load(s.track, false);
+    const t = Math.max(0, Number(s.time) || 0);
+    // Show the saved spot straight away; iPhone may not load the file until you press play.
+    if (s.dur) {
+      drawProgress(t / s.dur, t);
+      $$(".js-dur").forEach((el) => { el.textContent = fmt(s.dur); });
+    }
+    if (t > 0) {
+      audio.addEventListener("loadedmetadata", () => {
+        if (t < audio.duration - 1) audio.currentTime = t;
+        drawProgress(audio.currentTime / audio.duration, audio.currentTime);
+      }, { once: true });
+    }
+  }
+
+  // ── Status bar colour (installed app) ──────────
+  // Matches whatever is at the top of the screen: the olive album header, the
+  // dark list once you scroll, or the Now Playing background.
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  const scrim = $("statusScrim");
+  function syncStatusBar() {
+    const npOpen = document.body.classList.contains("np-open");
+    const scrolled = $("main").scrollTop > 40;
+    scrim.classList.toggle("on", scrolled && !npOpen);
+    themeMeta.setAttribute("content", npOpen ? "#5a6842" : scrolled ? "#131512" : "#4f5c3a");
+  }
+  $("main").addEventListener("scroll", syncStatusBar, { passive: true });
+  new MutationObserver(syncStatusBar).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+
+  // iPhone only shows :active (pressed) styles if the page listens for touches.
+  document.addEventListener("touchstart", () => {}, { passive: true });
+
   // ── init ──────────────────────────────────────
   drawProgress(0, 0);
   renderModes();
@@ -576,4 +654,6 @@
   renderPlayState();
   renderDlBtn();
   refreshDownloads();
+  restoreSession();
+  syncStatusBar();
 })();
