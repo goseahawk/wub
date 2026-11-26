@@ -98,7 +98,7 @@
 
   const openSheet = () => {
     if (isFirefoxDesktop) {
-      $("sheetTitle").textContent = "sorry Tony i don't know how to do this on firefox :(";
+      $("sheetTitle").textContent = "sorry tony i don't know how to do this on firefox :(";
       steps.innerHTML = "";
       sheet.hidden = false;
       return;
